@@ -2,3 +2,4 @@
 - [AL-RISALA auth roles](al-risala-auth.md) — Clerk `publicMetadata.role` gates admin and waiter access; enforce roles on the API server.
 - [Imported project workflow](imported-project-workflow.md) — Managed previews may still execute from the handoff path after files are copied.
 - [Managed artifact cleanup](managed-artifact-cleanup.md) — Artifact-owned workflows are pruned when their artifact directory is removed.
+- [Vite HMR through preview](vite-hmr-preview.md) — Keep the socket path explicitly routed, but let Vite infer protocol and port from the preview origin.

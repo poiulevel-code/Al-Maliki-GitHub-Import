@@ -8,7 +8,7 @@ router = "path"
 
 [[services]]
 name = "web"
-paths = [ "/" ]
+paths = [ "/", "/__vite_ws" ]
 localPort = 22499
 
 [services.development]
