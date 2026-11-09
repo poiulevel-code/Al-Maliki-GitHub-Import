@@ -1,0 +1,4 @@
+- [AL-RISALA import quirks](al-risala-import.md) — Supabase db.ts needs `sb()` as-any cast; Express 5 early-returns must split `res.json()` and `return;` separately.
+- [AL-RISALA auth roles](al-risala-auth.md) — Clerk `publicMetadata.role` gates admin and waiter access; enforce roles on the API server.
+- [Imported project workflow](imported-project-workflow.md) — Managed previews may still execute from the handoff path after files are copied.
+- [Managed artifact cleanup](managed-artifact-cleanup.md) — Artifact-owned workflows are pruned when their artifact directory is removed.

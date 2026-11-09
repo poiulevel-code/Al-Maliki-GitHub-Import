@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "ARAB ALI HOTEL Digital Menu"
+description = "QR kodla açılan dijital restoran menüsü; müşteriler için masa bazlı sipariş deneyimi, garsonlar için sipariş ve masa çağrısı takibi, yöneticiler için menü ve masa yönetimi sunar."
+version = "1.0.0"
+id = "artifacts/arab-ali-menu"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22499
+
+[services.development]
+run = "pnpm --filter @workspace/arab-ali-menu run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/arab-ali-menu", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/arab-ali-menu/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22499"
+BASE_PATH = "/"

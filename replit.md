@@ -1,45 +1,52 @@
-# [Project name]
+# ARAB ALI HOTEL Digital Menu
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Masaya özel QR menü; müşteriler `/masa/:tableId` üzerinden menüyü görüntüler, sipariş ve garson çağrısı gönderir. Garson ve yönetici panelleri Clerk oturumu gerektirir.
 
-## Run & Operate
+## Çalıştırma
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- API: `pnpm --filter @workspace/api-server run dev`
+- Aktif web arayüzü: `pnpm --filter @workspace/arab-ali-menu run dev`
+- Typecheck: `pnpm --filter @workspace/api-server run typecheck` ve `pnpm --filter @workspace/arab-ali-menu run typecheck`
+- Web build: `pnpm --filter @workspace/arab-ali-menu run build`
 
-## Stack
+## Mimari
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Aktif ve tek menü arayüzü `artifacts/arab-ali-menu`; eski `restoran-menu` arayüzü kaldırılmıştır.
+- Web: React, Vite, Tailwind CSS, Wouter, TanStack Query ve Clerk.
+- API: Express 5; Clerk cookie oturumu ve sunucu tarafında rol denetimi.
+- Veri ve görseller Supabase'te kalıcıdır; uygulama belleği veritabanının yerine geçmez.
+- Supabase SQL Editor'da `supabase/schema.sql` bir kez çalıştırılmalıdır.
+- Supabase tablolarına erişim API sunucusundaki Replit Supabase bağlantısı üzerinden yapılır. İstemcide Supabase anahtarı kullanılmaz.
+- Menü, kategori, masa, ayarlar, sipariş, garson çağrısı, yorum ve menü tıklama kayıtları Supabase'te tutulur.
+- `orders` tablosundaki `delivered` ve `cancelled` kayıtları kalıcı arşivdir. Garson sorgusu aktif siparişlerle birlikte teslimat saatinden itibaren 1 saat içindeki teslim edilenleri döndürür; yönetici Dashboard sorgusu arşivin tamamını dahil eder.
+- Sipariş teslim edilince `delivered_at` kaydedilir. Mevcut Supabase kurulumunda yeni sütun için `supabase/schema.sql` dosyasını tekrar çalıştırın; dosya eski teslimat kayıtlarını `created_at` ile geriye dönük doldurur.
+- İlk menü/kategori örnek verisi yalnızca ilk kurulum işaretlenmemişse yüklenir. Sonradan tüm menü silinirse yeniden başlatma örnek veriyi geri getirmez.
 
-## Where things live
+## Rotalar
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+| Rota | Erişim | Açıklama |
+|---|---|---|
+| `/` | Herkese açık | Restoran marka ekranı ve garson/yönetici giriş bağlantıları; paneller Clerk rolüyle korunur |
+| `/masa/:tableId` | Herkese açık | QR ile açılan müşteri menüsü |
+| `/sign-in` | Herkese açık | Clerk Google girişi |
+| `/sign-up/*` | `/sign-in` sayfasına yönlendirilir | Herkese açık kayıt arayüzü kapalıdır |
+| `/garson` | Clerk `waiter` rolü | Aktif siparişler ve masa çağrıları |
+| `/admin` | Clerk `admin` rolü | Menü, kategoriler, masalar, yorumlar, ayarlar ve raporlar |
 
-## Architecture decisions
+Clerk kullanıcısının `publicMetadata.role` alanı `waiter` veya `admin` olmalıdır. Rol atanmamış kullanıcıya erişim verilmez. Yeni rol ataması Clerk yönetiminden yapılır.
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+## API notları
 
-## Product
+- `GET /api/auth/me` Clerk oturumunu ve rolü döndürür.
+- `GET /api/bundle` yalnızca görünür menü öğelerini ve restoran ayarlarını verir.
+- `GET /api/menu?showHidden=1` yalnızca admin oturumuna açıktır; müşteri menüsü ve `GET /api/bundle` gizli ürünleri döndürmez.
+- `GET /api/orders?includeRecentDelivered=1` garson panosu için son 1 saatte teslim edilenleri ekler; `includeArchived=1` yalnızca admin rolüyle kullanılabilir.
+- Sipariş, masa çağrısı, yorum ve menü tıklaması masa kimliğini sunucuda doğrular; sipariş fiyatı Supabase menüsünden hesaplanır.
+- Garson çağrısı ve menü tıklamaları masa başına ve IP başına hız sınırına tabidir. Yüklenen görseller içerik imzasından JPEG, PNG veya WEBP olarak doğrulanır.
+- `GET /api/orders` arşivlenmemiş kayıtları; `GET /api/orders?includeArchived=1` yönetici geçmişini döndürür.
+- Personel API çağrıları Clerk oturum çerezini aynı kök adresten gönderir.
+- İstek gövdelerinde menü, kategori, masa ve ayar alanları izin listesine göre doğrulanır.
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+## Görsel kapsamı
 
-## User preferences
-
-_Populate as you build — explicit user instructions worth remembering across sessions._
-
-## Gotchas
-
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+Mevcut renkler, yazı tipleri, yerleşim ve animasyonlar korunur. Görsel değişiklik yalnızca açıkça istenirse yapılır.
