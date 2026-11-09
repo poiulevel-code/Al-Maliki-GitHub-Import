@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Switch, Route, Redirect, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ClerkProvider, SignIn, useAuth } from "@clerk/react";
+import { ClerkProvider, SignIn, SignUp, useAuth } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
 import { Toaster } from "@/components/ui/toaster";
@@ -216,7 +216,6 @@ function ClerkBoundary({ children }: { children: React.ReactNode }) {
           cardBox: "bg-white rounded-3xl w-[440px] max-w-full overflow-hidden shadow-2xl",
           card: "!shadow-none !border-0 !bg-transparent !rounded-none",
           footer: "!shadow-none !border-0 !bg-transparent !rounded-none",
-          footerAction: "hidden",
           headerTitle: "text-[#1B2A4A]",
           headerSubtitle: "text-stone-500",
           socialButtonsBlockButtonText: "text-[#1B2A4A]",
@@ -229,8 +228,10 @@ function ClerkBoundary({ children }: { children: React.ReactNode }) {
         },
       }}
       signInUrl={`${basePath}/sign-in`}
+      signUpUrl={`${basePath}/sign-up`}
       localization={{
         signIn: { start: { title: "Sign in to ARAB ALI HOTEL", subtitle: "Continue with Google to access the staff dashboard" } },
+        signUp: { start: { title: "Create your ARAB ALI HOTEL account", subtitle: "Sign up to access the available services" } },
       }}
     >
       {children}
@@ -297,6 +298,21 @@ function SignInPage() {
         <SignIn
           routing="path"
           path={`${basePath}/sign-in`}
+          signUpUrl={`${basePath}/sign-up`}
+        />
+      </div>
+    </ClerkBoundary>
+  );
+}
+
+function SignUpPage() {
+  return (
+    <ClerkBoundary>
+      <div className="flex min-h-[100dvh] items-center justify-center bg-background px-4">
+        <SignUp
+          routing="path"
+          path={`${basePath}/sign-up`}
+          signInUrl={`${basePath}/sign-in`}
         />
       </div>
     </ClerkBoundary>
@@ -311,9 +327,7 @@ function Router() {
         <Route path="/masa" component={MenuPage} />
         <Route path="/masa/:tableId" component={MenuPage} />
         <Route path="/sign-in/*?" component={SignInPage} />
-        <Route path="/sign-up/*?">
-          <Redirect to="/sign-in" />
-        </Route>
+        <Route path="/sign-up/*?" component={SignUpPage} />
         <Route path="/garson">
           <ProtectedPage requiredRole="waiter"><WaiterPage /></ProtectedPage>
         </Route>
