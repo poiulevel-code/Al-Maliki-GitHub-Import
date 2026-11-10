@@ -1839,7 +1839,9 @@ function TablesTab({ lang }: { lang: AdminLang }) {
 
   function getQrUrl(tableId: string) {
     const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
-    return `${window.location.origin}${basePath}/masa/${encodeURIComponent(tableId)}?qr=true`;
+    const publicAppOrigin = import.meta.env.VITE_PUBLIC_APP_URL?.replace(/\/+$/, "");
+    const origin = publicAppOrigin || window.location.origin;
+    return `${origin}${basePath}/masa/${encodeURIComponent(tableId)}?qr=true`;
   }
 
   function downloadQr(tableId: string, tableNumber: number) {
